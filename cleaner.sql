@@ -932,66 +932,334 @@ INSERT INTO pago VALUES (38,'PayPal','ak-std-000026','2006-05-26',1171);
 
 /* SENTENCIAS DML PARA PRÁCTICAR SIN MORIR EN EL INTENTO */
 /* EJEMPLO PARA CONOCER LAS COLUMNAS DE UNA TABLA*/
-DESCRIBE EMPLEADO;
 
-SELECT codigo_empleado, nombre, apellido1, apellido2,
-extension, email, codigo_oficina, codigo_jefe
-puesto FROM EMPLEADO;
-
-/* RETO 1 - Retorna un listado con el código de oficina y 
-la ciudad donde hay oficinas */
+/* Reto 1 - Retorna un listado con el código de oficina y la ciudad donde hay oficinas.*/
 
 describe oficina;
 
-select o.codigo_oficina as cod_oficina, o.ciudad country,
-concat(o.codigo_oficina,' - ', o.ciudad) as cod_ciudad_oficina
- from oficina o;
+Select codigo_oficina,
+ciudad,
+pais,
+region,
+codigo_postal,
+telefono,
+linea_direccion1,
+linea_direccion2
+from oficina;
  
- /* RETO 2 - Retorna un listado con la ciudad y 
- el telefono de las oficinas en España. */
- 
- select ciudad, telefono, pais from oficina
- where upper(pais) = 'ESPAÑA';
- 
- /* RETO 3 - Retorna el listado con todos los clientes que sean
- de la ciudad de Madrid y cuyo representante de ventas tenga 
- el código de empleado 11 ó 30. */
- 
- describe cliente;
- describe empleado;
- 
- select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl 
- join empleado em 
- on em.codigo_empleado = cl.codigo_empleado_rep_ventas
- where upper(cl.ciudad) = 'MADRID'
- and (em.codigo_empleado = 11 
- OR em.codigo_empleado = 30);
- 
-  select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl 
- join empleado em 
- on em.codigo_empleado = cl.codigo_empleado_rep_ventas
- where upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30); 
- 
-select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em 
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30); 
- 
- select em.codigo_empleado, count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em 
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30)
- group by em.codigo_empleado; 
+select codigo_oficina, ciudad 
+from oficina;
 
- select cl.ciudad, count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em 
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and em.codigo_empleado in (11,30)
- group by cl.ciudad
- order by cl.ciudad desc; 
+/* Reto 2 - Retorna un listado con la ciudad y el teléfono de las oficinas de España. */
+
+describe oficina;
+
+Select codigo_oficina,
+ciudad,
+pais,
+region,
+codigo_postal,
+telefono,
+linea_direccion1,
+linea_direccion2
+from oficina;
+
+select ciudad, telefono
+from oficina
+where pais = 'España';
+
+/* Reto 3 - Retorna un listado con el nombre, apellidos y email de los empleados cuyo jefe tiene un código de jefe igual a 7.*/
+
+describe empleado;
+
+select codigo_empleado,
+nombre,
+apellido1,
+apellido2,
+extension,
+email,
+codigo_oficina,
+codigo_jefe,
+puesto
+from empleado;
+
+select nombre, apellido1, apellido2, email
+from empleado;
+
+/* Reto 4 - Retorna el nombre del puesto, nombre, apellidos y email del jefe de la empresa.*/
+
+describe empleado;
+ 
+select codigo_empleado,
+nombre,
+apellido1,
+apellido2,
+extension,
+email,
+codigo_oficina,
+codigo_jefe,
+puesto
+from empleado;
+
+select nombre, apellido1, apellido2, email
+from empleado
+where puesto = 'Director General';
+
+/* Reto 5 - Retorna un listado con el nombre, apellidos y puesto de aquellos empleados que no sean representantes de ventas.*/
+
+describe empleado;
+
+select codigo_empleado,
+nombre,
+apellido1,
+apellido2,
+extension,
+email,
+codigo_oficina,
+codigo_jefe,
+puesto
+from empleado;
+
+select nombre, apellido1, apellido2, puesto
+from empleado
+where puesto <> 'Representante Ventas';
+
+/* Reto 6 - Retorna un listado con el nombre de los todos los clientes españoles.*/
+
+describe cliente;
+
+select codigo_cliente,
+nombre_cliente,
+nombre_contacto,
+apellido_contacto,
+telefono,
+fax,
+linea_direccion1,
+linea_direccion2,
+ciudad,
+region,
+pais,
+codigo_postal,
+codigo_empleado_rep_ventas,
+limite_credito
+from cliente;
+
+select nombre_cliente, pais
+from cliente
+where pais = 'Spain';
+
+/* Reto 7 - Retorna un listado con los distintos estados por los que puede pasar un pedido.*/
+
+describe pedido;
+
+select codigo_pedido,
+fecha_pedido,
+fecha_esperada,
+fecha_entrega,
+estado,
+comentarios,
+codigo_cliente 
+from pedido;
+
+select distinct estado 
+from pedido;
+
+/*Reto 8 Genera un listado con el código de cliente de aquellos clientes que realizaron algún pago en 2008. Tenga en cuenta que deberá eliminar aquellos códigos de cliente que aparezcan repetidos. Resuelva la consulta:
+
+- Utilizando la función YEAR de MySQL.
+- Utilizando la función DATE_FORMAT de MySQL. *Sin utilizar ninguna de las funciones anteriores.*/
+
+describe pago;
+
+select codigo_cliente,
+forma_pago,
+id_transaccion,
+fecha_pago,
+total
+from pago;
+
+SELECT DISTINCT codigo_cliente
+FROM pago
+WHERE YEAR(fecha_pago) = 2008;
+
+SELECT DISTINCT codigo_cliente
+FROM pago
+WHERE DATE_FORMAT(fecha_pago, '%Y') = '2008';
+
+/* Reto 9 - Genera un listado con el código de pedido, código de cliente, fecha esperada y fecha de entrega de los pedidos que no han sido entregados a tiempo.*/
+
+describe pedido;
+
+select codigo_pedido,
+fecha_pedido,
+fecha_esperada,
+fecha_entrega,
+estado,
+comentarios,
+codigo_cliente 
+from pedido;
+
+select codigo_pedido, codigo_cliente, fecha_esperada, fecha_entrega
+from pedido
+where fecha_entrega > fecha_esperada
+   or fecha_entrega IS NULL;
+   
+/* Reto 10 - I. Genera un listado con el código de pedido, código de cliente, fecha esperada y fecha de entrega de los pedidos cuya fecha de entrega ha sido al menos dos días antes de la fecha esperada.
+
+* Utilizando la función ADDDATE de MySQL.
+* Utilizando la función DATEDIFF de MySQL.
+* ¿Sería posible resolver esta consulta utilizando el operador de suma + o resta -?*/
+
+describe pedido;
+
+select codigo_pedido,
+fecha_pedido,
+fecha_esperada,
+fecha_entrega,
+estado,
+comentarios,
+codigo_cliente 
+from pedido;
+
+select codigo_pedido, codigo_cliente, fecha_esperada, fecha_entrega
+from pedido
+where fecha_entrega <= ADDDATE(fecha_esperada, INTERVAL -2 DAY);
+
+SELECT codigo_pedido, codigo_cliente, fecha_esperada, fecha_entrega
+FROM pedido
+WHERE DATEDIFF(fecha_esperada, fecha_entrega) >= 2;
+
+/* Reto 11 - Genera un listado de todos los pedidos que fueron rechazados en 2009.*/
+
+describe pedido;
+
+select codigo_pedido,
+fecha_pedido,
+fecha_esperada,
+fecha_entrega,
+estado,
+comentarios,
+codigo_cliente 
+from pedido;
+
+select estado, comentarios, fecha_pedido
+from pedido
+where estado = 'Rechazado'
+    and year(fecha_pedido) = 2009;
+
+/* Reto 12 - Genera un listado de todos los pedidos que han sido entregados en el mes de enero de cualquier año.*/
+
+describe pedido;
+
+select codigo_pedido,
+fecha_pedido,
+fecha_esperada,
+fecha_entrega,
+estado,
+comentarios,
+codigo_cliente 
+from pedido;
+
+select fecha_entrega, estado
+from pedido
+where estado = 'Entregado'
+    and month(fecha_entrega) = 1;
+
+/* Reto 13 - Genera un listado con todos los pagos que se realizaron en el año 2008 mediante Paypal. Ordene el resultado de mayor a menor.*/
+
+describe pago;
+
+select codigo_cliente,
+forma_pago,
+id_transaccion,
+fecha_pago,
+total
+from pago;
+
+select codigo_cliente, forma_pago, id_transaccion, fecha_pago, total
+from pago
+where year(fecha_pago) = 2008
+    and forma_pago = 'PayPal'
+order by total desc;
+
+/* Reto 14 - Genera un listado con todas las formas de pago que aparecen en la tabla pago. Tenga en cuenta que no deben aparecer formas de pago repetidas.*/
+
+describe pago;
+
+select codigo_cliente,
+forma_pago,
+id_transaccion,
+fecha_pago,
+total
+from pago;
+
+SELECT DISTINCT forma_pago
+from pago;
+
+/* Reto 15 - Genera un listado con todos los productos que pertenecen a la gama Ornamentales y que tienen más de 100 unidades en stock. El listado deberá estar ordenado por su precio de venta, mostrando en primer lugar los de mayor precio.*/
+
+describe gama_producto;
+
+select gama,
+descripcion_texto,
+descripcion_html,
+imagen
+from gama_producto;
+
+describe producto;
+
+select codigo_producto,
+nombre,
+gama,
+dimensiones,
+proveedor,
+descripcion,
+cantidad_en_stock,
+precio_venta,
+precio_proveedor
+from producto;
+
+select codigo_producto, nombre, gama, cantidad_en_stock, precio_venta
+from producto
+where gama = 'Ornamentales'
+  and cantidad_en_stock > 100
+order by precio_venta desc;
+
+/* Reto 16 - Genera un listado con todos los clientes que sean de la ciudad de Madrid y cuyo representante de ventas tenga el código de empleado 11 o 30.*/
+
+describe cliente;
+
+select codigo_cliente,
+nombre_cliente,
+nombre_contacto,
+apellido_contacto,
+telefono,
+fax,
+linea_direccion1,
+linea_direccion2,
+ciudad,
+region,
+pais,
+codigo_postal,
+codigo_empleado_rep_ventas,
+limite_credito 
+from cliente;
+
+describe empleado;
+
+select codigo_empleado,
+nombre,
+apellido1,
+apellido2,
+extension,
+email,
+codigo_oficina,
+codigo_jefe,
+puesto 
+from empleado;
+
+select codigo_cliente, nombre_cliente, ciudad, codigo_empleado_rep_ventas
+from cliente
+where ciudad = 'Madrid'
+  and codigo_empleado_rep_ventas in (11, 30);
 
